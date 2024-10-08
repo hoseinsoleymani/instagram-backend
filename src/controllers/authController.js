@@ -96,9 +96,10 @@ const verify = async (req, res, next) => {
     res.status(403).json("You are not authorized");
   }
   const token = authHeader.split(" ")[1];
+  console.log(token)
   try {
     if (authHeader) {
-      jwt.verify(token, "YOUR_SECRET_KEY", (err, user) => {
+      jwt.verify(token, generateToken.secretKey, (err, user) => {
         if (err) {
           throw new Error("token is not valid!");
         }
@@ -134,7 +135,7 @@ const refresh = async (req, res) => {
     }
     jwt.verify(
       refreshToken,
-      "YOUR_SECRETKEY_REFRESHTOKEN",
+      generateToken.secretKey,
       async (err, user) => {
         if (err) {
           throw new Error("token is not valid!");
