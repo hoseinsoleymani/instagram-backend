@@ -101,7 +101,8 @@ const verify = async (req, res, next) => {
     if (authHeader) {
       jwt.verify(token, generateToken.secretKey, (err, user) => {
         if (err) {
-          throw new Error("token is not valid!");
+          
+          throw new Error("token is not valideeeeeeeeeeeeeeee boro!");
         }
         req.user = user;
         next();
