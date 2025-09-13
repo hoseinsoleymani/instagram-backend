@@ -66,6 +66,7 @@ const deleteArticle = async (req, res) => {
 const getTimeline = async (req, res) => {
   try {
     const userid = req.user._id;
+    
     const page = parseInt(req.query.page) - 1 || 0;
     const limit = parseInt(req.query.limit) || 1;
     const user = await User.findById(userid).select("followings");

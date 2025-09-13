@@ -270,7 +270,7 @@ router.delete("/:id", authController.verify, articleController.deleteArticle);
  *                   example: Error details
  */
 
-router.get("/timeline", articleController.getTimeline);
+router.get("/timeline", authController.verify, articleController.getTimeline);
 
 /**
  * @swagger
