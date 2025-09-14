@@ -63,48 +63,57 @@ const deleteArticle = async (req, res) => {
     });
   }
 };
+
 const getTimeline = async (req, res) => {
   try {
     const userid = req.user._id;
 
     const page = parseInt(req.query.page) - 1 || 0;
-    const limit = parseInt(req.query.limit) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
     const user = await User.findById(userid).select("followings");
+
+    // مقالات خود یوزر
     const myArticles = await Article.find({ user: userid })
       .skip(page * limit)
       .limit(limit)
-      .sort({ createdAt: "desc" })
-      // .populate("user", "username profilePicture");
+      .sort({ createdAt: -1 })
+      .populate("user", "username profilePicture");
 
+    // مقالات فالوئینگ‌ها (۲۴ ساعت اخیر)
     const followingsArticles = await Promise.all(
       user.followings.map((followingId) => {
         return Article.find({
           user: followingId,
           createdAt: {
-            $gte: new Date(new Date().getTime() - 86400000).toISOString(),
+            $gte: new Date(new Date().getTime() - 86400000), // فقط Date
           },
         })
           .skip(page * limit)
           .limit(limit)
-          .sort({ createdAt: "desc" })
-          // .populate("user", "username profilePicture");
-          
+          .sort({ createdAt: -1 })
+          .populate("user", "username profilePicture");
       })
     );
-    arr = myArticles.concat(...followingsArticles);
+
+    // ادغام
+    const arr = [...myArticles, ...followingsArticles.flat()];
+
     res.status(200).send({
       status: "success",
       Articles: arr,
       limit: arr.length,
     });
   } catch (e) {
-    console.log("called")
+    console.log("called");
     res.status(500).send({
       status: "failure",
       message: e.message,
     });
   }
 };
+
+
 const getArticlesUser = async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username });
