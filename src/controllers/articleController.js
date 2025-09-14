@@ -66,7 +66,7 @@ const deleteArticle = async (req, res) => {
 const getTimeline = async (req, res) => {
   try {
     const userid = req.user._id;
-    
+
     const page = parseInt(req.query.page) - 1 || 0;
     const limit = parseInt(req.query.limit) || 1;
     const user = await User.findById(userid).select("followings");
@@ -74,7 +74,8 @@ const getTimeline = async (req, res) => {
       .skip(page * limit)
       .limit(limit)
       .sort({ createdAt: "desc" })
-      .populate("user", "username profilePicture");
+      // .populate("user", "username profilePicture");
+
     const followingsArticles = await Promise.all(
       user.followings.map((followingId) => {
         return Article.find({
@@ -86,7 +87,7 @@ const getTimeline = async (req, res) => {
           .skip(page * limit)
           .limit(limit)
           .sort({ createdAt: "desc" })
-          .populate("user", "username profilePicture");
+          // .populate("user", "username profilePicture");
       })
     );
     arr = myArticles.concat(...followingsArticles);
