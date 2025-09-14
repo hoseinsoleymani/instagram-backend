@@ -88,6 +88,7 @@ const getTimeline = async (req, res) => {
           .limit(limit)
           .sort({ createdAt: "desc" })
           // .populate("user", "username profilePicture");
+          
       })
     );
     arr = myArticles.concat(...followingsArticles);
