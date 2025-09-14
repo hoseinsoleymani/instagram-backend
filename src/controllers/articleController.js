@@ -3,13 +3,28 @@ const User = require("../Models/userModel");
 const Comment = require("../Models/commentModel");
 
 const createArticle = async (req, res) => {
-  req.body.user = req.user._id;
-  const newArticle = new Article(req.body);
   try {
+    const { title, content } = req.body;
+
+    if (!title || !content) {
+      return res.status(400).send({
+        status: "failure",
+        message: "title and content are required",
+      });
+    }
+
+    const newArticle = new Article({
+      user: req.user._id,
+      title,
+      content,
+    });
+
     await newArticle.save();
+
     res.status(200).send({
       status: "success",
       message: "article has been created",
+      article: newArticle, // برگردوندن مقاله ساخته‌شده
     });
   } catch (e) {
     res.status(500).send({
@@ -18,6 +33,8 @@ const createArticle = async (req, res) => {
     });
   }
 };
+
+
 const updateArticle = async (req, res) => {
   try {
     const article = await Article.findById(req.params.id);
@@ -73,14 +90,12 @@ const getTimeline = async (req, res) => {
 
     const user = await User.findById(userid).select("followings");
 
-    // مقالات خود یوزر
     const myArticles = await Article.find({ user: userid })
       .skip(page * limit)
       .limit(limit)
       .sort({ createdAt: -1 })
       .populate("user", "username profilePicture");
 
-    // مقالات فالوئینگ‌ها (۲۴ ساعت اخیر)
     const followingsArticles = await Promise.all(
       user.followings.map((followingId) => {
         return Article.find({
@@ -96,7 +111,6 @@ const getTimeline = async (req, res) => {
       })
     );
 
-    // ادغام
     const arr = [...myArticles, ...followingsArticles.flat()];
 
     res.status(200).send({
@@ -112,7 +126,6 @@ const getTimeline = async (req, res) => {
     });
   }
 };
-
 
 const getArticlesUser = async (req, res) => {
   try {
